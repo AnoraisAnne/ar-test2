@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AR Sketch Pop-up</title>
+    <!-- โหลด A-Frame และ MindAR -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <!-- โหลดตัวช่วยเจาะพื้นหลังสีเขียว (Chroma Key) -->
+    <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <a-scene 
+      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF:0.0001; filterBeta: 0.001;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
+      <a-assets>
+        <!-- โหลดไฟล์วิดีโอแอนิเมชัน -->
+        <video id="ar-video" src="./animation.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <!-- เมื่อกล้องส่องเจอภาพ target -->
+      <a-entity id="target-entity" mindar-image-target="targetIndex: 0">
+        <!-- แสดงวิดีโอแบบเจาะพื้นเขียว และหมุนตั้งฉาก 90 องศา -->
+        <a-plane 
+          material="shader: chromakey; src: #ar-video; color: 0.0 1.0 0.0" 
+          position="0 0 0.5" 
+          rotation="90 0 0" 
+          width="1" 
+          height="1">
+        </a-plane>
+      </a-entity>
+    </a-scene>
+
+    <!-- สคริปต์สั่งให้วิดีโอเล่นอัตโนมัติเมื่อส่องเจอภาพ -->
+    <script>
+      const targetEntity = document.querySelector('#target-entity');
+      const video = document.querySelector('#ar-video');
+
+      targetEntity.addEventListener("targetFound", event => {
+        video.play();
+      });
+
+      targetEntity.addEventListener("targetLost", event => {
+        video.pause();
+      });
+    </script>
+  </body>
+</html>
